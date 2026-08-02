@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Human Verification</title>
+
+
+    <style>
+
+        /* =========================================
+           RESET
+        ========================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        /* =========================================
+           BODY
+        ========================================= */
+
+        body {
+
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #f2f4f7;
+
+            color: #222;
+
+        }
+
+
+        /* =========================================
+           MAIN CARD
+        ========================================= */
+
+         /* =====================================================
+           TWO COLUMN LAYOUT
+        ===================================================== */
+
+        .two-column {
+
+            width: 100%;
+
+            max-width: 1500px;
+
+            margin: 0 auto;
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1fr)
+                minmax(0, 1fr);
+
+            gap: 40px;
+
+            align-items: center;
+
+        }
+
+
+        /* =====================================================
+           IMAGE CARD
+        ===================================================== */
+
+        .imgcard {
+
+            width: 100%;
+
+            overflow: hidden;
+
+            background: #fff;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 16px;
+
+            box-shadow:
+                0 8px 30px rgba(0, 0, 0, 0.08);
+
+            transition:
+                transform 0.3s ease,
+                box-shadow 0.3s ease;
+
+        }
+
+
+        .imgcard:hover {
+
+            transform: translateY(-6px);
+
+            box-shadow:
+                0 18px 45px rgba(0, 0, 0, 0.13);
+
+        }
+
+
+        .imgcard img {
+
+            display: block;
+
+            width: 100%;
+
+            aspect-ratio: 16 / 9;
+
+            object-fit: cover;
+
+        }
+
+
+        .imgcard h1 {
+
+            margin: 20px 20px 8px;
+
+            color: #111827;
+
+            font-size: 24px;
+
+            line-height: 1.25;
+
+        }
+
+
+        .imgcard p {
+
+            margin: 0 20px 22px;
+
+            color: #6b7280;
+
+            font-size: 15px;
+
+            line-height: 1.7;
+
+        }
+
+        .card {
+
+            width: 100%;
+            max-width: 420px;
+
+            padding: 32px;
+
+            background: #ffffff;
+
+            border-radius: 16px;
+
+            box-shadow:
+                0 10px 35px rgba(0, 0, 0, 0.10);
+
+        }
+
+
+        /* =========================================
+           HEADER
+        ========================================= */
+
+        h1 {
+
+            text-align: center;
+
+            font-size: 24px;
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .subtitle {
+
+            text-align: center;
+
+            color: #777;
+
+            font-size: 14px;
+
+            line-height: 1.5;
+
+            margin-bottom: 24px;
+
+        }
+
+
+        /* =========================================
+           CAPTCHA ROW
+        ========================================= */
+
+        .captcha-area {
+
+            display: flex;
+
+            gap: 8px;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        /* =========================================
+           CAPTCHA CONTAINER
+        ========================================= */
+
+        .captcha {
+
+            position: relative;
+
+            flex: 1;
+
+            height: 75px;
+
+            overflow: hidden;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            background:
+
+                repeating-linear-gradient(
+                    45deg,
+                    #f0f0f0,
+                    #f0f0f0 3px,
+                    #e5e5e5 3px,
+                    #e5e5e5 6px
+                );
+
+            border: 1px solid #ccc;
+
+            border-radius: 8px;
+
+            user-select: none;
+
+        }
+
+
+        /* =========================================
+           CAPTCHA NOISE LINES
+        ========================================= */
+
+        .captcha::before {
+
+            content: "";
+
+            position: absolute;
+
+            width: 120%;
+
+            height: 2px;
+
+            top: 25px;
+
+            left: -10%;
+
+            background: #777;
+
+            opacity: 0.55;
+
+            transform: rotate(-8deg);
+
+            pointer-events: none;
+
+        }
+
+
+        .captcha::after {
+
+            content: "";
+
+            position: absolute;
+
+            width: 120%;
+
+            height: 2px;
+
+            top: 48px;
+
+            left: -10%;
+
+            background: #777;
+
+            opacity: 0.45;
+
+            transform: rotate(7deg);
+
+            pointer-events: none;
+
+        }
+
+
+        /* =========================================
+           CAPTCHA CHARACTERS
+        ========================================= */
+
+        .character {
+
+            position: relative;
+
+            z-index: 2;
+
+            display: inline-block;
+
+            margin: 0 2px;
+
+            font-size: 28px;
+
+            font-weight: 800;
+
+            color: #222;
+
+            text-shadow:
+                1px 1px 0 #fff,
+                -1px -1px 0 #aaa;
+
+            transform:
+                rotate(var(--rotation))
+                translateY(var(--offset));
+
+        }
+
+
+        /* =========================================
+           REFRESH BUTTON
+        ========================================= */
+
+        .refresh {
+
+            width: 55px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #111;
+
+            color: #fff;
+
+            font-size: 24px;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+
+        }
+
+
+        .refresh:hover {
+
+            background: #333;
+
+        }
+
+
+        .refresh:disabled {
+
+            opacity: 0.5;
+
+            cursor: not-allowed;
+
+        }
+
+
+        /* =========================================
+           INPUT
+        ========================================= */
+
+        .captcha-input {
+
+            width: 100%;
+
+            height: 50px;
+
+            padding: 0 15px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 8px;
+
+            outline: none;
+
+            font-size: 17px;
+
+            /*
+                Important:
+                DO NOT use text-transform: uppercase.
+                CAPTCHA is case-sensitive.
+            */
+
+            letter-spacing: 2px;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .captcha-input:focus {
+
+            border-color: #111;
+
+        }
+
+
+        .captcha-input:disabled {
+
+            background: #f2f2f2;
+
+            cursor: not-allowed;
+
+        }
+
+
+        /* =========================================
+           VERIFY BUTTON
+        ========================================= */
+
+        .verify {
+
+            width: 100%;
+
+            height: 50px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #111;
+
+            color: #fff;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+
+        }
+
+
+        .verify:hover {
+
+            background: #333;
+
+        }
+
+
+        .verify:disabled {
+
+            background: #777;
+
+            cursor: not-allowed;
+
+        }
+
+
+        /* =========================================
+           MESSAGE
+        ========================================= */
+
+        .message {
+
+            min-height: 20px;
+
+            margin-top: 12px;
+
+            text-align: center;
+
+            font-size: 14px;
+
+        }
+
+
+        /* =========================================
+           PROTECTED LINKS
+        ========================================= */
+
+        .links {
+
+            display: none;
+
+            margin-top: 25px;
+
+            padding-top: 20px;
+
+            border-top: 1px solid #eee;
+
+        }
+
+
+        .links.show {
+
+            display: block;
+
+        }
+
+
+        .links h2 {
+
+            font-size: 18px;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .link {
+
+            display: block;
+
+            padding: 13px 15px;
+
+            margin-bottom: 10px;
+
+            background: #f3f3f3;
+
+            color: #222;
+
+            text-decoration: none;
+
+            border-radius: 8px;
+
+            transition: 0.2s;
+
+        }
+
+
+        .link:hover {
+
+            background: #e4e4e4;
+
+        }
+
+
+        /* =========================================
+           MOBILE
+        ========================================= */
+
+        @media (max-width: 450px) {
+
+            .card {
+
+                padding: 24px 18px;
+
+            }
+
+
+            .character {
+
+                font-size: 23px;
+
+                margin: 0 1px;
+
+            }
+
+
+            .captcha {
+
+                height: 65px;
+
+            }
+
+
+            .refresh {
+
+                width: 50px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <main class="two-column">
+
+          <!-- =================================================
+             LEFT IMAGE CARD
+        ================================================== -->
+
+        <div class="imgcard">
+
+            <img
+                src="https://ik.imagekit.io/th8xabiur/Thumbnails/images.jfif?updatedAt=1772182675528"
+                alt="Banner"
+            >
+
+            <h1>
+                The Garden Of Words
+            </h1>
+
+            <p>
+                A teenage boy who dreams of becoming a shoemaker meets a mysterious older woman in a Tokyo garden on rainy mornings, and their unexpected friendship gradually changes both of their lives.
+            </p>
+
+        </div>
+
+    <div class="card">
+
+
+        <h1>
+            Human Verification
+        </h1>
+
+
+        <p class="subtitle">
+            Enter the characters exactly as shown below.
+            CAPTCHA is case-sensitive.
+        </p>
+
+
+        <!-- =====================================
+             CAPTCHA
+        ====================================== -->
+
+        <div class="captcha-area">
+
+
+            <div
+                class="captcha"
+                id="captcha"
+                aria-label="CAPTCHA"
+            >
+            </div>
+
+
+            <button
+                type="button"
+                class="refresh"
+                id="refresh"
+                title="Generate new CAPTCHA"
+                aria-label="Generate new CAPTCHA"
+            >
+                ↻
+            </button>
+
+
+        </div>
+
+
+        <!-- =====================================
+             CAPTCHA INPUT
+        ====================================== -->
+
+        <input
+            type="text"
+            id="captchaInput"
+            class="captcha-input"
+            placeholder="Enter CAPTCHA"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            maxlength="6"
+        >
+
+
+        <!-- =====================================
+             VERIFY
+        ====================================== -->
+
+        <button
+            type="button"
+            class="verify"
+            id="verify"
+        >
+            Verify
+        </button>
+
+
+        <!-- =====================================
+             MESSAGE
+        ====================================== -->
+
+        <div
+            class="message"
+            id="message"
+            aria-live="polite"
+        >
+        </div>
+
+
+        <!-- =====================================
+             PROTECTED LINKS
+        ====================================== -->
+
+        <div
+            class="links"
+            id="links"
+        >
+
+            <h2>
+                Available Links
+            </h2>
+
+
+            <a
+                class="link"
+                href="https://drive.proton.me/urls/3R8ZE8GC6W#AzH1qzPlM3jL"
+            >
+                Website 1
+            </a>
+
+
+            <a
+                class="link"
+                href="https://google.com"
+            >
+                Website 2
+            </a>
+
+
+            <a
+                class="link"
+                href="https://github.com"
+            >
+                Website 3
+            </a>
+
+
+        </div>
+
+
+    </div>
+
+    </main>
+
+    <script>
+
+
+        /* =========================================
+           CAPTCHA CONFIGURATION
+        ========================================= */
+
+
+        /*
+            Uppercase letters
+            Lowercase letters
+            Numbers
+
+            Ambiguous characters can be removed if
+            desired.
+        */
+
+        const characters =
+            "ABCDEFGHJKLMNPQRSTUVWXYZ" +
+            "abcdefghijkmnpqrstuvwxyz" +
+            "23456789";
+
+
+        const CAPTCHA_LENGTH = 6;
+
+
+        let captchaCode = "";
+
+
+
+        /* =========================================
+           GENERATE CAPTCHA
+        ========================================= */
+
+        function generateCaptcha() {
+
+
+            captchaCode = "";
+
+
+            const captcha =
+                document.getElementById("captcha");
+
+
+            const input =
+                document.getElementById("captchaInput");
+
+
+            const message =
+                document.getElementById("message");
+
+
+            /*
+                Clear previous CAPTCHA
+            */
+
+            captcha.innerHTML = "";
+
+
+            /*
+                Generate random characters
+            */
+
+            for (
+                let i = 0;
+                i < CAPTCHA_LENGTH;
+                i++
+            ) {
+
+
+                const randomIndex =
+                    Math.floor(
+                        Math.random() *
+                        characters.length
+                    );
+
+
+                const character =
+                    characters[randomIndex];
+
+
+                /*
+                    Save exact character.
+
+                    IMPORTANT:
+                    We do NOT convert it to
+                    uppercase or lowercase.
+                */
+
+                captchaCode += character;
+
+
+                /*
+                    Create visual character
+                */
+
+                const span =
+                    document.createElement("span");
+
+
+                span.className =
+                    "character";
+
+
+                span.textContent =
+                    character;
+
+
+                /*
+                    Random rotation
+                */
+
+                const rotation =
+                    Math.floor(
+                        Math.random() * 31
+                    ) - 15;
+
+
+                /*
+                    Random vertical position
+                */
+
+                const offset =
+                    Math.floor(
+                        Math.random() * 11
+                    ) - 5;
+
+
+                span.style.setProperty(
+                    "--rotation",
+                    rotation + "deg"
+                );
+
+
+                span.style.setProperty(
+                    "--offset",
+                    offset + "px"
+                );
+
+
+                captcha.appendChild(span);
+
+            }
+
+
+            /*
+                Reset input
+            */
+
+            input.value = "";
+
+
+            /*
+                Reset message
+            */
+
+            message.textContent = "";
+
+        }
+
+
+
+        /* =========================================
+           VERIFY CAPTCHA
+        ========================================= */
+
+        function verifyCaptcha() {
+
+
+            const input =
+                document.getElementById(
+                    "captchaInput"
+                );
+
+
+            const message =
+                document.getElementById(
+                    "message"
+                );
+
+
+            const links =
+                document.getElementById(
+                    "links"
+                );
+
+
+            const verifyButton =
+                document.getElementById(
+                    "verify"
+                );
+
+
+            const refreshButton =
+                document.getElementById(
+                    "refresh"
+                );
+
+
+            /*
+                IMPORTANT:
+
+                Do NOT use:
+
+                .toUpperCase()
+
+                or:
+
+                .toLowerCase()
+
+                because CAPTCHA is
+                case-sensitive.
+            */
+
+            const userInput =
+                input.value.trim();
+
+
+            /*
+                Empty input
+            */
+
+            if (userInput === "") {
+
+
+                message.textContent =
+                    "Please enter the CAPTCHA.";
+
+
+                message.style.color =
+                    "#d97706";
+
+
+                return;
+
+            }
+
+
+
+            /* =====================================
+               EXACT CASE-SENSITIVE COMPARISON
+            ====================================== */
+
+
+            if (userInput === captchaCode) {
+
+
+                /*
+                    SUCCESS
+                */
+
+                message.textContent =
+                    "✓ Verification successful.";
+
+
+                message.style.color =
+                    "#15803d";
+
+
+                /*
+                    Show protected links
+                */
+
+                links.classList.add("show");
+
+
+                /*
+                    Disable CAPTCHA controls
+                */
+
+                input.disabled = true;
+
+
+                verifyButton.disabled = true;
+
+
+                refreshButton.disabled = true;
+
+
+                verifyButton.textContent =
+                    "Verified ✓";
+
+            }
+
+
+            else {
+
+
+                /*
+                    WRONG CAPTCHA
+                */
+
+                message.textContent =
+                    "✕ Incorrect CAPTCHA. A new CAPTCHA has been generated.";
+
+
+                message.style.color =
+                    "#dc2626";
+
+
+                /*
+                    Generate a new CAPTCHA
+                */
+
+                generateCaptcha();
+
+            }
+
+        }
+
+
+
+        /* =========================================
+           VERIFY BUTTON
+        ========================================= */
+
+        document
+            .getElementById("verify")
+            .addEventListener(
+                "click",
+                verifyCaptcha
+            );
+
+
+
+        /* =========================================
+           REFRESH BUTTON
+        ========================================= */
+
+        document
+            .getElementById("refresh")
+            .addEventListener(
+                "click",
+                generateCaptcha
+            );
+
+
+
+        /* =========================================
+           ENTER KEY
+        ========================================= */
+
+        document
+            .getElementById("captchaInput")
+            .addEventListener(
+                "keydown",
+                function(event) {
+
+
+                    if (
+                        event.key === "Enter"
+                    ) {
+
+                        verifyCaptcha();
+
+                    }
+
+                }
+            );
+
+
+
+        /* =========================================
+           INITIAL CAPTCHA
+        ========================================= */
+
+        generateCaptcha();
+
+
+    </script>
+
+
+</body>
+
+</html>
